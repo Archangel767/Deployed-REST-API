@@ -5,32 +5,23 @@ const dotenv = require('dotenv').config()
 const express = require('express')
 const app = express()
 
-const gallery = require('./gallery')
-const randomItem = require('./random-item')
+const scenery = require('./scenery')
 
 /*****************/
 /* Define routes */
 /*****************/
 
 // List entry route
-app.get('/api/gallery', (req, res) => {
-  let randomCharacter = null; // for Random member filter
-  let poisonedCharacter = null; // for Poisoned member filter
-
+app.get('/api/scenery', (req, res) => {
   if (req.query.filter === 'random') {   
 
-    randomCharacter = randomItem(gallery)
-    res.send(randomCharacter)
+    randomScene = randomItem(scenery)
+    res.send(randomScene)
 
-  } else if (req.query.filter === 'poisoned') {
-
-    poisonedCharacter = gallery.filter(item => item.poisoned)
-    res.send(poisonedCharacter)
-
-  } else if (typeof gallery !== 'undefined' && Array.isArray(gallery)) {
+  } else if (typeof scenery !== 'undefined' && Array.isArray(scenery)) {
 
     // Variable is an array!
-    res.send(gallery)
+    res.send(scenery)
 
   } else {
 
@@ -42,17 +33,17 @@ app.get('/api/gallery', (req, res) => {
 })
 
 // Item route
-app.get('/api/gallery/:name', (req, res) => {
-  let character
+app.get('/api/scenery/:id', (req, res) => {
+  let scene
 
-  if (typeof gallery !== 'undefined' && Array.isArray(gallery)) {
-    character = gallery.find(item => req.params.name === item.name) // Use Array.find() here
+  if (typeof scenery !== 'undefined' && Array.isArray(scenery)) {
+    scene = scenery.find(item => req.params.name === item.name) // Use Array.find() here
   } else {
-    character = null;
+    scene = null;
   }
   
-  if (typeof character === 'object' && character !== null) {
-    res.send(character)
+  if (typeof scene === 'object' && scene !== null) {
+    res.send(scene)
   } else {
     res.status(404)
     res.send({error: 'File Not Found'})
