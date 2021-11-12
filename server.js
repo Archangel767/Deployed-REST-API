@@ -1,53 +1,74 @@
 /******************/
 /* Import Modules */
 /******************/
-const dotenv = require('dotenv').config()
-const express = require('express')
+// 1. Require mongoose and dotenv
+const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
+
+const express = require('express');
+const Scene = require('./models/scene');
 const app = express()
 
-const scenery = require('./scenery')
+/********************/
+/* Connect to Atlas */
+/********************/
+
+mongoose.connect(
+  process.env.MONGODB_URL,
+  { useUnifiedTopology: true, useNewUrlParser: true },
+  )
+  .then(function(){
+    console.log('Connected to DB...')
+  })
+  .catch(function(err){
+    console.log(err)
+  });
+
 
 /*****************/
 /* Define routes */
 /*****************/
 
+
 // List entry route
-app.get('/api/scenery', (req, res) => {
-  if (req.query.filter === 'random') {   
-
-    randomScene = randomItem(scenery)
-    res.send(randomScene)
-
-  } else if (typeof scenery !== 'undefined' && Array.isArray(scenery)) {
-
-    // Variable is an array!
-    res.send(scenery)
-
-  } else {
-
-    res.status(404)
-    res.send({error: 'File Not Found'})
-    
-  }
-
+app.get('/models/scene', (req, res) => {
+  // 3. Define `scene` array of objects using our model
+  let scene = null
+  Scene.find((err, data) => {
+    if (err) {
+      console.log(err)
+      res.sendStatus(404);
+    }
+    else {
+      scene = data
+      console.log(data)
+    if (typeof scene !== 'undefined' && Array.isArray(scene)) {
+        res.send(scene)
+    } else {    
+        res.status(404)
+        res.send({error: 'File Not Found'})      
+    }}
+  })
 })
 
 // Item route
-app.get('/api/scenery/:id', (req, res) => {
-  let scene
-
-  if (typeof scenery !== 'undefined' && Array.isArray(scenery)) {
-    scene = scenery.find(item => req.params.name === item.name) // Use Array.find() here
-  } else {
-    scene = null;
-  }
-  
-  if (typeof scene === 'object' && scene !== null) {
-    res.send(scene)
-  } else {
-    res.status(404)
-    res.send({error: 'File Not Found'})
-  }
+app.get('/models/scenes', (req, res) => {
+  let character
+  Scene.findOne({title: req.params.title}, function(err, data) {
+    if(err) {
+      console.log(err)
+      res.sendStatus(404);
+    } else {
+      character = data
+      console.log(character)
+      if (typeof character === 'object' && character !== null) {
+        res.send(character)
+      } else {
+        res.status(404)
+        res.send({error: 'File Not Found'})
+      }
+    }
+  });
 })
 
 /****************************/
@@ -55,7 +76,7 @@ app.get('/api/scenery/:id', (req, res) => {
 /****************************/
 
 // Handle 404 errors with middleware
-app.use((req, res) => {
+app.use(function(req, res) {
 
   // If path starts with `/api`, send JSON 404
   if (req.url.startsWith('/api')) {
