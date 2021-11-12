@@ -1,7 +1,5 @@
-/******************/
-/* Import Modules */
-/******************/
-// 1. Require mongoose and dotenv
+
+// Required modules to import
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
 
@@ -9,9 +7,7 @@ const express = require('express');
 const Scene = require('./models/scene');
 const app = express()
 
-/********************/
-/* Connect to Atlas */
-/********************/
+// Connect to Mongoose
 
 mongoose.connect(
   process.env.MONGODB_URL,
@@ -31,7 +27,7 @@ mongoose.connect(
 
 
 // List entry route
-app.get('/models/scene', (req, res) => {
+app.get('/gallery', (req, res) => {
   // 3. Define `scene` array of objects using our model
   let scene = null
   Scene.find((err, data) => {
@@ -52,7 +48,7 @@ app.get('/models/scene', (req, res) => {
 })
 
 // Item route
-app.get('/models/scenes', (req, res) => {
+app.get('/gallery/:title', (req, res) => {
   let character
   Scene.findOne({title: req.params.title}, function(err, data) {
     if(err) {
